@@ -1,0 +1,9 @@
+﻿Testing Mongodb Shard  Cluster
+  Connect ke mongodb > :~$mongo mongos01:27017
+  mongos:> use test_db
+  mongos:> db
+  output >> test_db
+  mongos:> sh.enableSharding("test_db")
+  mongos:> use config
+  mongos:> db.databases.find()
+  output >> { "_id" : "test_db", "partitioned" : true, "primary" : "rsn0" }
