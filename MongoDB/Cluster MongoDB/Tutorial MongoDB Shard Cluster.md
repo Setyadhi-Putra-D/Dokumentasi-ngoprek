@@ -4,7 +4,7 @@ Tutorial ini berisi urutan-urutan proses membuat mongodb cluster dengan cara sha
 
 __Referensi:__
 - Dokumentasi resmi dari MongoDB tentang MongoDB sharded cluster  
-[ https://docs.mongodb.com/manual/sharding/ ]
+[Install MongoDB](https://github.com/Setyadhi-Putra-D/Dokumentasi-ngoprek/tree/master/MongoDB/Install%20MongoDB)
 
 __Spesifikasi Minimal:__
 - 3 node Desktop/Server (2 node Desktop/Server 2core and 4GB RAM | 1 node Desktop/Server 4core and 8GB RAM)
@@ -12,7 +12,7 @@ __Spesifikasi Minimal:__
 
 __Topology Sistem:__
 
-![alt tag](https://github.com/Setyadhi-Putra-D/Dokumentasi/blob/master/MongoDB/Cluster%20MongoDB/Asset/sharded-cluster-production-architecture.png)
+![alt tag](https://github.com/Setyadhi-Putra-D/Dokumentasi-ngoprek/blob/master/MongoDB/Cluster MongoDB/Asset/sharded-cluster-production-architecture.png)
 
 
 Type server | Component install | Deskripsi | Ip address | Hostname
@@ -62,11 +62,11 @@ Edit file __:~$ sudo vim /etc/mongod.conf__ ikuti langkah dibawah ini
     - __bindIp: 0.0.0.0__
   - __uncomment replication:__
     - __replSetName: rsn0__
-    
-![alt tag](https://github.com/Setyadhi-Putra-D/Dokumentasi/blob/master/MongoDB/Cluster%20MongoDB/Asset/mongod.png)
+
+![alt tag](https://github.com/Setyadhi-Putra-D/Dokumentasi-ngoprek/blob/master/MongoDB/Cluster MongoDB/Asset/mongod.png)
 
 ### Step 3.3: Restart mongo db service
-Setelah selesai config lalu restart service mongod nya 
+Setelah selesai config lalu restart service mongod nya
 
 __:~$sudo service mongod restart__
 
@@ -117,10 +117,10 @@ Edit file __:~$ sudo vim /etc/mongod.conf__ ikuti langkah dibawah ini
   - __uncomment sharding:__
     - __clusterRole: "configsvr"__
 
-![alt tag](https://github.com/Setyadhi-Putra-D/Dokumentasi/blob/master/MongoDB/Cluster%20MongoDB/Asset/mongo-config-server.png)
+![alt tag](https://github.com/Setyadhi-Putra-D/Dokumentasi-ngoprek/blob/master/MongoDB/Cluster MongoDB/Asset/mongo-config-server.png)
 
 ### Step 4.3: Restart mongo db service
-Setelah selesai config lalu restart service mongod nya 
+Setelah selesai config lalu restart service mongod nya
 
 __:~$sudo service mongod restart__
 
@@ -163,49 +163,49 @@ Edit file __:~$ sudo vim /etc/mongod.conf__ ikuti langkah dibawah ini
   - __uncomment net:__
     - __port: 27017__
     - __bindIp: 0.0.0.0__
-  - __uncomment sharding:__ 
+  - __uncomment sharding:__
     - __configDB: configReplSet/mongoconfig01:27019, config_server:port__
 
-![alt tag](https://github.com/Setyadhi-Putra-D/Dokumentasi/blob/master/MongoDB/Cluster%20MongoDB/Asset/mongo-mongos.png)
+![alt tag](https://github.com/Setyadhi-Putra-D/Dokumentasi-ngoprek/blob/master/MongoDB/Cluster MongoDB/Asset/mongo-mongos.png)
 
 ### Step 5.3: Setup mongos as a service
 - __Ubuntu 16.04 (systemd)__
-    - duplicate file service mongod ke mongos 
+    - duplicate file service mongod ke mongos
       - :~$ sudo cp /lib/systemd/system/__mongod.service__ ke /lib/systemd/system/__mongos.service__
     - edit file mongos.service
       - :~$ sudo vim /lib/systemd/system/__mongos.service__
       - ubah pada bagian __ExecStart=/usr/bin/mongod__ ke __ExecStart=/usr/bin/mongos__
 - __Ubuntu 14.04__
-    - duplicate file service mongod ke mongos 
+    - duplicate file service mongod ke mongos
       - :~$ sudo cp /etc/init/__mongod.conf__ ke /etc/init/__mongos.conf__
     - edit file mongos.conf
       - :~$ sudo vim /etc/init/__mongod.conf__
       - ubah pada bagian __DAEMON=/usr/bin/mongod__ ke __DAEMON=/usr/bin/mongos__
       - ubah pada bagian __if [ -f /etc/default/mongod ]; then . /etc/default/mongod; fi__ ke __if [ -f /etc/default/mongos ]; then . /etc/default/mongos; fi__
 
-![alt tag](https://github.com/Setyadhi-Putra-D/Dokumentasi/blob/master/MongoDB/Cluster%20MongoDB/Asset/mongo-mongos-service.png)
+![alt tag](https://github.com/Setyadhi-Putra-D/Dokumentasi-ngoprek/blob/master/MongoDB/Cluster MongoDB/Asset/mongo-mongos-service.png)
 
-![alt tag](https://github.com/Setyadhi-Putra-D/Dokumentasi/blob/master/MongoDB/Cluster%20MongoDB/Asset/mongo-mongos-service2.png)
+![alt tag](https://github.com/Setyadhi-Putra-D/Dokumentasi-ngoprek/blob/master/MongoDB/Cluster MongoDB/Asset/mongo-mongos-service2.png)
 
 ### Step 5.4: Restart mongodb service
-setelah selesai config lalu restart service mongod dan mongos nya 
+setelah selesai config lalu restart service mongod dan mongos nya
 - __:~$sudo service mongod restart__
 - __:~$sudo systemctl restart mongod__
 - __:~$sudo service mongos restart__
 - __:~$sudo systemctl restart mongos__
 
 ### Step 5.5: Configure the shards
-ikuti langkah-langkah berikut untuk mengkonfigurasi 
+ikuti langkah-langkah berikut untuk mengkonfigurasi
 - Connect ke mongodb > __:~$mongo mongos01:27017__
-- Config MongoDB mongos:> __sh.addShard( “rsn0/mongod01:27017” )__ 
+- Config MongoDB mongos:> __sh.addShard( “rsn0/mongod01:27017” )__
 - Config MongoDB mongos:> __sh.addShard( “replication_shard/primary_shard_server:port” )__
 
-Check status dengan command 
-- mongos:> __sh.status()__ 
+Check status dengan command
+- mongos:> __sh.status()__
 
 __atau__
 
-Check status dengan command 
+Check status dengan command
 - mongos:> __use admin__
 - mongos:> __db.runCommand("getShardMap")__
 
@@ -213,4 +213,3 @@ Check status dengan command
 Metode ini untuk membuat Load Balance antara mongos01 dan mongos02
 - Connect ke mongodb > __:~$mongo mongos01:27017__
 - Config MongoDB mongos:> __sh.getBalancerState()__
-    
