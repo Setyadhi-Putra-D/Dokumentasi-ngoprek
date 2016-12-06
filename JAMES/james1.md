@@ -93,6 +93,7 @@ Domain yang dipakai adalah subdomain `james.tealinuxos.org` dan menggunakan user
   * Incoming > Protocol : `IMAP` > Port : `10143` > Hostname : `james.tealinuxos.org`
   * Outgoing > Protocol : `SMTP` > Port : `10025` > Hostname : `james.tealinuxos.org`
 * Coba kirim e-mail dari JAMES ke Gmail
+![alt tag]
 
 ##Konfigurasi Tambahan
 
@@ -187,3 +188,47 @@ wrapper.ping.timeout=300
   ~]# openssl rsa -in dkim-private.pem -out dkim-public.pem -pubout -outform PEM
   ```
 * Menambahkan / register public key ke DNS Record
+  ```
+  Domain = 1480566545.tealinuxos._domainkey.tealinuxos.org
+  TTL = 14400
+  Class = IN
+  Type = TXT
+  Destination = v=DKIM1\; k=rsa\; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCuAaQ1O5HoBraRJt5BmBsJ+eA5pO/7QO4UX4WQHpNPB2oBRytFqbXHw5X8WBlT2GsfQtJChcMudS56k7veHlK3zgK2+uAQ2RfA25nqVYaAlAPs7tSXmwxEwLc5vkgg/oxerulUx9BZZ8Lw6huHRinIVTYhxkzcC1SEL02Vuxov/QIDAQAB
+  ```
+  ![alt tag](https://github.com/Setyadhi-Putra-D/Dokumentasi-ngoprek/blob/master/JAMES/asset/2016-12-01-121837_1920x1080_scrot.png)
+* Testing DKIM, Publickey, dan selectornya dengan command
+  ```
+  ~]$ host -t txt 1480566545.tealinuxos._domainkey.tealinuxos.org
+  1480566545.tealinuxos._domainkey.tealinuxos.org descriptive text "v=DKIM1\; k=rsa\; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCuAaQ1O5HoBraRJt5BmBsJ+eA5pO/7QO4UX4WQHpNPB2oBRytFqbXHw5X8WBlT2GsfQtJChcMudS56k7veHlK3zgK2+uAQ2RfA25nqVYaAlAPs7tSXmwxEwLc5vkgg/oxerulUx9BZZ8Lw6huHRinIVTYhxkzcC1SEL02Vuxov/QIDAQAB"
+  ```
+
+####Mendefinisikan script DKIMSign di mailet
+Edit file `mailetcontainer.xml` pada directory `/opt/james-server/conf/`. Pastikan nilai `s` (selector) sesuai dengan yang sudah terdaftar di DNS. Dan harus mengganti `d` (domain) dengan domain yang terpasang server. Tambahkan beberapa script sebelum `<mailet match="All" class="RemoteDelivery">`.
+  ```xml
+  <mailet match="All" class="org.apache.james.jdkim.mailets.ConvertTo7Bit"/>
+
+  <mailet match="All" class="org.apache.james.jdkim.mailets.DKIMSign">
+    <signatureTemplate>v=1; s=1480566545.tealinuxos; d=tealinuxos.org; c=relaxed/relaxed; h=Message-ID:Date:Subject:From:To:MIME-Version:Content-Type; a=rsa-sha256; bh=; b=;</signatureTemplate>
+    <privateKey>
+    -----BEGIN RSA PRIVATE KEY-----
+    isi dari PRIVATE KEY
+    -----END RSA PRIVATE KEY-----
+    </privateKey>
+  </mailet>
+
+  <!-- Attempt remote delivery using the specified repository for the spool, -->
+  <!-- using delay time to retry delivery and the maximum number of retries -->
+  <mailet match="All" class="RemoteDelivery">
+    <outgoingQueue>outgoing</outgoingQueue>
+
+  ```
+
+####Restart JAMES
+
+###Referensi
+* (http://james.apache.org/jdkim/mailets/)
+* (http://mail-archives.apache.org/mod_mbox/james-server-user/201410.mbox/%3C544FD474.2040906%40malcolms.com%3E)
+* (http://www.gettingemaildelivered.com/dkim-explained-how-to-set-up-and-use-domainkeys-identified-mail-effectively)
+* (http://www.dataenter.com/doc/general_domainkeys.htm)
+* (https://scottlinux.com/2012/10/27/how-to-fetch-dkim-records-from-dns/)
+* (http://dkimcore.org/)
