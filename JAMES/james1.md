@@ -56,14 +56,17 @@ Masuk ke directory `~]# cd /opt/james-server/conf/` dalam directory conf semua f
 ```
 Konfigurasi pertama, akan merubah nilai port dari settingan defaultnya. Port smtpserver, port pop3server, dan port imapserver
 * Pertama ubah port pada file `smtpserver.xml`
+
   ```xml
   <bind>0.0.0.0:10025</bind>
   ```
 * Ubah port pada file `pop3server.xml`
+
   ```xml
   <bind>0.0.0.0:10110</bind>
   ```
 * Ubah port pada file `imapserver.xml`
+
   ```xml
   <bind>0.0.0.0:10143</bind>
   ```
@@ -101,6 +104,7 @@ Domain yang dipakai adalah subdomain `james.tealinuxos.org` dan menggunakan user
 ####Menambahkan pengait yang membatalkan eksekusi shutdown untuk Derby
 Secara default, file `db.lck` pada directory `/opt/james-server/var/store/derby/` akan menghilang terhapus setelah JAMES shutdown. Berarti JAMES tidak mengeksekusi dengan benar prosedur shutdown dari Derby. Hal itu dapat menyebabkan kerusakan data dari database Derby. Menambahkan pengait sehingga Derby dapat dengan baik mengeksekusi shutdown pada saat JAMES shutdown.
 * Clone, build jar, dan copy ke directory `/opt/james-server/conf/lib/`
+
   ```bash
   ~]# git clone https://github.com/lbtc-xxx/derby-shutdown-bean
   ~]# cd derby-shutdown-bean
@@ -108,6 +112,7 @@ Secara default, file `db.lck` pada directory `/opt/james-server/var/store/derby/
   ~]# cp target/derby-shutdown-bean.jar /opt/james-server/conf/lib/
   ```
 * Buat folder di directory `/opt/james-server/conf/META-INF/org/apache/james/` dan copy kan `spring-server.xml`
+
   ```bash
   ~]# pwd
   /opt/james-server/conf/META-INF
@@ -115,10 +120,12 @@ Secara default, file `db.lck` pada directory `/opt/james-server/var/store/derby/
   ~]# cp /opt/james-project/server/container/spring/src/main/resources/META-INF/org/apache/james/spring-server.xml /opt/james-server/conf/META-INF/org/apache/james
   ```
 * Configure file `~]# vim /opt/james-server/conf/META-INF/org/apache/james/spring-server.xml`
+
   ```xml
   <bean id="derbyShutdownSpringBean" class="org.nailedtothex.derby.DerbyShutdownSpringBean"/>
   ```
 * Configure file `~]# vim /opt/james-server/conf/log4j.properties`
+
   ```
   log4j.logger.org.nailedtothex.derby=INFO, CONS, FILE
   ```
@@ -146,6 +153,7 @@ wrapper.ping.timeout=300
 * Download lib distribution dari Apache Derby [Download Page](http://archive.apache.org/dist/db/derby/db-derby-10.11.1.1/db-derby-10.11.1.1-lib.tar.gz)
 * Extract hasil dari download `~]# tar -zxvf db-derby-10.11.1.1-lib.tar.gz`
 * File yang digunakan `derby.jar` dan `derbynet.jar` untuk menerima koneksi jaringan dan copy 2 file jar di directory `/opt/james-server/lib/`
+
   ```bash
   ~]# pwd
   /opt
@@ -153,11 +161,13 @@ wrapper.ping.timeout=300
   ~]# cp db-derby-10.11.1.1-lib/lib/derbynet.jar james-server/lib
   ```
 * Definisikan file `derby.jar` dan `derbynet.jar` ke file konfigurasi `wrapper.conf`
+
   ```java
   wrapper.java.classpath.94=%REPO_DIR%/derby.jar
   wrapper.java.classpath.131=%REPO_DIR%/derbynet.jar
   ```
 * Konfigurasi `derby.log` dan beberapa tambahan untuk derby
+
   ```java
   # Java Additional Parameters
   # wrapper.java.additional.1=
@@ -174,6 +184,7 @@ wrapper.ping.timeout=300
 * Download package Apache James DKIM [Download Page](http://mirror.wanxp.id/apache//james/jdkim/apache-jdkim-0.2-bin.tar.gz)
 * Extract hasil dari download `~]# tar -zxvf apache-jdkim-0.2-bin.tar.gz`
 * Copy beberapa file lib `.jar` dan paste file `.jar` pada directory `/opt/james-server/lib/`
+
   ```bash
   ~]# pwd
   /opt/apache-jdkim-0.2
@@ -182,6 +193,7 @@ wrapper.ping.timeout=300
   ~]# cp lib/not-yet-commons-ssl-0.3.11.jar /opt/james-server/conf/lib
   ```
 * Membuat key pair ada dua `dkim-public.pem` dan `dkim-private.pem`, public untuk DNS Record dan Private untuk server james
+
   ```bash
   ~]# pwd
   /opt/apache-jdkim-0.2
@@ -189,6 +201,7 @@ wrapper.ping.timeout=300
   ~]# openssl rsa -in dkim-private.pem -out dkim-public.pem -pubout -outform PEM
   ```
 * Menambahkan / register public key ke DNS Record
+
   ```
   Domain = 1480566545.tealinuxos._domainkey.tealinuxos.org
   TTL = 14400
@@ -199,6 +212,7 @@ wrapper.ping.timeout=300
 
 ![alt tag](https://github.com/Setyadhi-Putra-D/Dokumentasi-ngoprek/blob/master/JAMES/asset/2016-12-01-121837_1920x1080_scrot.png)
 * Testing DKIM, Publickey, dan selectornya dengan command
+
   ```bash
   ~]$ host -t txt 1480566545.tealinuxos._domainkey.tealinuxos.org
   1480566545.tealinuxos._domainkey.tealinuxos.org descriptive text "v=DKIM1\; k=rsa\; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCuAaQ1O5HoBraRJt5BmBsJ+eA5pO/7QO4UX4WQHpNPB2oBRytFqbXHw5X8WBlT2GsfQtJChcMudS56k7veHlK3zgK2+uAQ2RfA25nqVYaAlAPs7tSXmwxEwLc5vkgg/oxerulUx9BZZ8Lw6huHRinIVTYhxkzcC1SEL02Vuxov/QIDAQAB"
@@ -206,6 +220,7 @@ wrapper.ping.timeout=300
 
 ####Mendefinisikan script DKIMSign di mailet
 Edit file `mailetcontainer.xml` pada directory `/opt/james-server/conf/`. Pastikan nilai `s` (selector) sesuai dengan yang sudah terdaftar di DNS. Dan harus mengganti `d` (domain) dengan domain yang terpasang server. Tambahkan beberapa script sebelum `<mailet match="All" class="RemoteDelivery">`.
+
   ```xml
   <mailet match="All" class="org.apache.james.jdkim.mailets.ConvertTo7Bit"/>
 
@@ -222,7 +237,6 @@ Edit file `mailetcontainer.xml` pada directory `/opt/james-server/conf/`. Pastik
   <!-- using delay time to retry delivery and the maximum number of retries -->
   <mailet match="All" class="RemoteDelivery">
     <outgoingQueue>outgoing</outgoingQueue>
-
   ```
 
 ####Restart JAMES
@@ -236,4 +250,93 @@ Edit file `mailetcontainer.xml` pada directory `/opt/james-server/conf/`. Pastik
 * (http://dkimcore.org/)
 
 ----
-#Membuat Java KeyStore dari Certificate x.509
+#Konfigurasi SSL JAMES
+
+##Requirement
+* Port IMAPS > `993`
+* Port SMTPS > `465` (untuk mail client)
+* Port SMTP > `25` (untuk menerima koneksi dari server SMTP lain. STARTTLS diaktifkan)
+* Mengekspos port dengan forwarding pada `iptables`
+* [Java KeyStore](https://github.com/Setyadhi-Putra-D/Dokumentasi-ngoprek/blob/master/SSL/JKS.md)
+  copy file `mykeystore.jks` ke directory `/opt/james-server/conf`
+
+### Konfigurasi IMAPS
+* Masuk ke file konfigurasi `imapserver.xml` dan ganti `port` + `TLS`
+
+  ```xml
+  <bind>0.0.0.0:10993</bind>
+
+  <tls socketTLS="true" startTLS="false">
+   <keystore>file://conf/mykeystore.jks</keystore>
+   <secret>PASSPHRASE</secret>
+   <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider>
+  </tls>
+  ```
+
+### Konfigurasi SMTPS
+* Membuat seluruh salinan elemen `smtpserver` di `smtpserver.xml`
+* Mengubah `jmxName` pada elemen kedua `smtpserver`, `port`, dan `TLS`
+
+  ```xml
+  <jmxName>smtpsserver</jmxName>
+
+  <bind>0.0.0.0:10465</bind>
+
+  <tls socketTLS="true" startTLS="false">
+   <keystore>file://conf/mykeystore.jks</keystore>
+   <secret>PASSPHRASE</secret>
+   <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider>
+   <algorithm>SunX509</algorithm>
+  </tls>
+
+  <authRequired>announce</authRequired>
+  ```
+
+### Konfigurasi SMTP
+* Edit `TLS` pada elemen pertama `smtpserver`
+
+  ```xml
+  <tls socketTLS="false" startTLS="true">
+   <keystore>file://conf/mykeystore.jks</keystore>
+   <secret>PASSPHRASE</secret>
+   <provider>org.bouncycastle.jce.provider.BouncyCastleProvider</provider>
+   <algorithm>SunX509</algorithm>
+  </tls>
+  ```
+
+###Menghapus `mailet` dari file konfigurasi `mailetcontainer.xml`
+
+```xml
+<mailet match="RemoteAddrNotInNetwork=127.0.0.1" class="ToProcessor">
+  <processor>relay-denied</processor>
+  <notice>550 - Requested action not taken: relaying denied</notice>
+</mailet>
+```
+
+###Konfigurasi iptables
+* Edit file `iptables` pada directory `/etc/sysconfig/`
+
+  ```
+  *nat
+  :PREROUTING ACCEPT [0:0]
+  :OUTPUT ACCEPT [0:0]
+  :POSTROUTING ACCEPT [0:0]
+  -A PREROUTING -i eth0 -p tcp --dport 25 -j DNAT --to-destination :10025
+  -A PREROUTING -i eth0 -p tcp --dport 465 -j DNAT --to-destination :10465
+  -A PREROUTING -i eth0 -p tcp --dport 993 -j DNAT --to-destination :10993
+  COMMIT
+  *filter
+  :INPUT DROP [0:0]
+  :FORWARD DROP [0:0]
+  :OUTPUT ACCEPT [0:0]
+  -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+  -A INPUT -i lo -j ACCEPT
+  -A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
+  -A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT
+  -A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT
+  -A INPUT -m state --state NEW -m tcp -p tcp --dport 10025 -j ACCEPT
+  -A INPUT -m state --state NEW -m tcp -p tcp --dport 10465 -j ACCEPT
+  -A INPUT -m state --state NEW -m tcp -p tcp --dport 10993 -j ACCEPT
+  COMMIT
+  ```
+* `service iptables restart`
