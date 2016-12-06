@@ -1,6 +1,6 @@
 ----
 #Setup JAMES (Java Apache Mail Enterprise Server) di CentOS 7
-----
+
 ##Step 0 : Requirements
 
 ####Install JAVA (JDK & JRE) di CentOS 7
@@ -38,7 +38,7 @@
 
 ##Step 2 : Configure
 Copy file ber-extensi `.tar.gz / .zip` hasil compile dan build JAMES dari directory `/opt/james-project/server/app/target/` ke directory `/opt` lalu extract file tadi.
-```
+```bash
 ~]# cp /opt/james-project/server/app/target/james-server-app-3.0.0-betax-SNAPSHOT-app.tar.gz /opt/
 ~]# tar -zxvf james-server-app-3.0.0-betax-SNAPSHOT-app.tar.gz
 ```
@@ -69,7 +69,7 @@ Konfigurasi pertama, akan merubah nilai port dari settingan defaultnya. Port smt
   ```
 
 Setelah selesai mengedit port pindah ke directory `~]# cd /opt/james-server/bin/` dan jalankan service JAMES `~]# ./james start`, ada 6 fungsi yang bisa dijalankan pada JAMES `Usage: ./james { console | start | stop | restart | status | dump }`, Jika JAMES sudah berjalan check portnya `~]# netstat -tupln`. Setelah itu jika sudah up dan running test JAMES dengan menggunakan command `telnet localhost 10025`, jika ada error / tidak dapat connect ke JAMES coba check `wrapper.log` pada directory `~]# vim /opt/james-server/log/wrapper.log`.
-```
+```bash
 [root@james ~]# telnet localhost 10025
 Trying ::1...
 Connected to localhost.
@@ -82,7 +82,7 @@ Connection closed by foreign host.
 
 ##Step 3 : Buat Account User and Domain
 Domain yang dipakai adalah subdomain `james.tealinuxos.org` dan menggunakan user untuk testing JAMES. Masuk ke directory `~]# cd /opt/james-server/bin/` dan jalankan command untuk menambah user dan domain
-```
+```bash
 ~]# ./james-cli.sh -h localhost -p 9999 adddomain james.tealinuxos.org && ./james-cli.sh -h localhost -p 9999 adduser username@james.tealinuxos.org password
 ```
 
@@ -93,21 +93,22 @@ Domain yang dipakai adalah subdomain `james.tealinuxos.org` dan menggunakan user
   * Incoming > Protocol : `IMAP` > Port : `10143` > Hostname : `james.tealinuxos.org`
   * Outgoing > Protocol : `SMTP` > Port : `10025` > Hostname : `james.tealinuxos.org`
 * Coba kirim e-mail dari JAMES ke Gmail
-![alt tag]
+
+![alt tag](https://github.com/Setyadhi-Putra-D/Dokumentasi-ngoprek/blob/master/JAMES/asset/2016-11-24-173239_1920x1080_scrot.png)
 
 ##Konfigurasi Tambahan
 
 ####Menambahkan pengait yang membatalkan eksekusi shutdown untuk Derby
 Secara default, file `db.lck` pada directory `/opt/james-server/var/store/derby/` akan menghilang terhapus setelah JAMES shutdown. Berarti JAMES tidak mengeksekusi dengan benar prosedur shutdown dari Derby. Hal itu dapat menyebabkan kerusakan data dari database Derby. Menambahkan pengait sehingga Derby dapat dengan baik mengeksekusi shutdown pada saat JAMES shutdown.
 * Clone, build jar, dan copy ke directory `/opt/james-server/conf/lib/`
-  ```
+  ```bash
   ~]# git clone https://github.com/lbtc-xxx/derby-shutdown-bean
   ~]# cd derby-shutdown-bean
   ~]# mvn clean package
   ~]# cp target/derby-shutdown-bean.jar /opt/james-server/conf/lib/
   ```
 * Buat folder di directory `/opt/james-server/conf/META-INF/org/apache/james/` dan copy kan `spring-server.xml`
-  ```
+  ```bash
   ~]# pwd
   /opt/james-server/conf/META-INF
   ~]# mkdir -p org/apache/james
@@ -141,23 +142,23 @@ wrapper.ping.timeout=300
 
 ----
 #Updating dan Configuring Derby
-----
+
 * Download lib distribution dari Apache Derby [Download Page](http://archive.apache.org/dist/db/derby/db-derby-10.11.1.1/db-derby-10.11.1.1-lib.tar.gz)
 * Extract hasil dari download `~]# tar -zxvf db-derby-10.11.1.1-lib.tar.gz`
 * File yang digunakan `derby.jar` dan `derbynet.jar` untuk menerima koneksi jaringan dan copy 2 file jar di directory `/opt/james-server/lib/`
-  ```
+  ```bash
   ~]# pwd
   /opt
   ~]# cp db-derby-10.11.1.1-lib/lib/derby.jar james-server/lib
   ~]# cp db-derby-10.11.1.1-lib/lib/derbynet.jar james-server/lib
   ```
 * Definisikan file `derby.jar` dan `derbynet.jar` ke file konfigurasi `wrapper.conf`
-  ```
+  ```java
   wrapper.java.classpath.94=%REPO_DIR%/derby.jar
   wrapper.java.classpath.131=%REPO_DIR%/derbynet.jar
   ```
 * Konfigurasi `derby.log` dan beberapa tambahan untuk derby
-  ```
+  ```java
   # Java Additional Parameters
   # wrapper.java.additional.1=
   wrapper.java.additional.18=-Dderby.infolog.append=true
@@ -169,11 +170,11 @@ wrapper.ping.timeout=300
 
 ----
 #DKIM JAMES
-----
+
 * Download package Apache James DKIM [Download Page](http://mirror.wanxp.id/apache//james/jdkim/apache-jdkim-0.2-bin.tar.gz)
 * Extract hasil dari download `~]# tar -zxvf apache-jdkim-0.2-bin.tar.gz`
 * Copy beberapa file lib `.jar` dan paste file `.jar` pada directory `/opt/james-server/lib/`
-  ```
+  ```bash
   ~]# pwd
   /opt/apache-jdkim-0.2
   ~]# cp lib/apache-jdkim-library-0.2.jar /opt/james-server/conf/lib
@@ -181,7 +182,7 @@ wrapper.ping.timeout=300
   ~]# cp lib/not-yet-commons-ssl-0.3.11.jar /opt/james-server/conf/lib
   ```
 * Membuat key pair ada dua `dkim-public.pem` dan `dkim-private.pem`, public untuk DNS Record dan Private untuk server james
-  ```
+  ```bash
   ~]# pwd
   /opt/apache-jdkim-0.2
   ~]# openssl genrsa -out dkim-private.pem 1024 -outform PEM
@@ -195,9 +196,10 @@ wrapper.ping.timeout=300
   Type = TXT
   Destination = v=DKIM1\; k=rsa\; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCuAaQ1O5HoBraRJt5BmBsJ+eA5pO/7QO4UX4WQHpNPB2oBRytFqbXHw5X8WBlT2GsfQtJChcMudS56k7veHlK3zgK2+uAQ2RfA25nqVYaAlAPs7tSXmwxEwLc5vkgg/oxerulUx9BZZ8Lw6huHRinIVTYhxkzcC1SEL02Vuxov/QIDAQAB
   ```
-  ![alt tag](https://github.com/Setyadhi-Putra-D/Dokumentasi-ngoprek/blob/master/JAMES/asset/2016-12-01-121837_1920x1080_scrot.png)
+
+![alt tag](https://github.com/Setyadhi-Putra-D/Dokumentasi-ngoprek/blob/master/JAMES/asset/2016-12-01-121837_1920x1080_scrot.png)
 * Testing DKIM, Publickey, dan selectornya dengan command
-  ```
+  ```bash
   ~]$ host -t txt 1480566545.tealinuxos._domainkey.tealinuxos.org
   1480566545.tealinuxos._domainkey.tealinuxos.org descriptive text "v=DKIM1\; k=rsa\; p=MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCuAaQ1O5HoBraRJt5BmBsJ+eA5pO/7QO4UX4WQHpNPB2oBRytFqbXHw5X8WBlT2GsfQtJChcMudS56k7veHlK3zgK2+uAQ2RfA25nqVYaAlAPs7tSXmwxEwLc5vkgg/oxerulUx9BZZ8Lw6huHRinIVTYhxkzcC1SEL02Vuxov/QIDAQAB"
   ```
@@ -232,3 +234,6 @@ Edit file `mailetcontainer.xml` pada directory `/opt/james-server/conf/`. Pastik
 * (http://www.dataenter.com/doc/general_domainkeys.htm)
 * (https://scottlinux.com/2012/10/27/how-to-fetch-dkim-records-from-dns/)
 * (http://dkimcore.org/)
+
+----
+#Membuat Java KeyStore dari Certificate x.509
