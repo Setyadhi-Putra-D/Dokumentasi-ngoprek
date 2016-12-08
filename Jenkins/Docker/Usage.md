@@ -1,4 +1,14 @@
 ##Build Jenkins di Docker
+* Buat folder pada home `docker_jenkins`, isi folder tersebut dengan Dockerfile
+* Build
+```bash
+cd docker_jenkins
+pwd
+/home/$USER/docker_jenkins
+docker build -t dev/jenkins .
+```
+
+##Deploy Jenkins
 
 ```bash
 docker run --name devjenkins -d -p 18080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home -t jenkins
@@ -21,3 +31,5 @@ Apabila ada dependency yang belum terinstall / kurang, dapat masuk kedalam Conta
 * `docker exec -it [CONTAINER ID] /bin/sh`
 * `docker exec -it [CONTAINER ID] /bin/bash`
 * `docker exec -it -u root [CONTAINER ID] /bin/bash`
+sudo docker build \
+  -t dev24/mongodb mongod
