@@ -4,7 +4,7 @@
 ####Docker
 [Klik Disini](https://github.com/Setyadhi-Putra-D/Dokumentasi-ngoprek/blob/master/Jenkins/Docker/Usage.md)
 
-[DockerFile](https://github.com/Setyadhi-Putra-D/Dokumentasi-ngoprek/blob/master/Jenkins/Docker/Usage.md)
+[DockerFile](https://github.com/Setyadhi-Putra-D/Dokumentasi-ngoprek/blob/master/Jenkins/Docker/Dockerfile)
 
 ####Ubuntu / Debian
 Pada distribusi berbasis Debian, seperti Ubuntu, dapat menginstal Jenkins melalui `apt`

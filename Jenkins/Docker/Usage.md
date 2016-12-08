@@ -11,7 +11,7 @@ docker build -t dev/jenkins .
 ##Deploy Jenkins
 
 ```bash
-docker run --name devjenkins -d -p 18080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home -t jenkins
+docker run --name devjenkins -d -p 18080:8080 -p 50000:50000 -v jenkins_home:/var/jenkins_home -t dev/jenkins
 ```
 * `50000` port mapping
 * `18080` port ke public, agar developer, DevOps, PM, dkk bisa akses jenkins diluar.
